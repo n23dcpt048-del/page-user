@@ -1,0 +1,88 @@
+/* ===== RESET LAYOUT ADMIN ===== */
+body {
+  display: block !important;
+}
+
+/* ===== HEADER ===== */
+.user-header {
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-header .container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===== MAIN ===== */
+.user-main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+/* ⚠️ CÔ LẬP CARD ADMIN */
+.admin-card-wrapper {
+  all: unset;
+  display: block;
+}
+
+/* Footer */
+        footer {
+            background-color: #BC2626;
+            color: white;
+            padding: 50px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+	    padding: 0 90px; /* ✅ thêm padding 2 bên để canh đều */
+        }
+
+        .footer-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+       
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: #e53935;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+/* ===== ÉP 2 CARD / 1 HÀNG (USER PAGE) ===== */
+.user-main .event-card {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}

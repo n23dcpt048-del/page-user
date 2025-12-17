@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Trang Sự Kiện</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="user.css">
+  <link rel="stylesheet" href="qlsk.css">
+</head>
+<body>
+<header class="user-header">
+  <div class="container">
+    <h1>Event Portal (USER PAGE)</h1>
+     </div>
+</header>
+
+<main class="user-main">
+  <h2>Danh sách sự kiện</h2>
+
+  <section class="admin-card-wrapper">
+    <div class="event-card" id="events-container">
+      <p style="text-align:center; color:#888; grid-column:1/-1; padding:60px;">
+        Đang tải danh sách sự kiện...
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Trụ sở chính</h3>
+        <p>Số 122 Hoàng Quốc Việt, phường Nghĩa Đô, thành phố Hà Nội.</p>
+        <p>Cơ sở đào tạo tại Hà Nội<br>Số 964 Tiến Phú, phường Hà Đông, thành phố Hà Nội.</p>
+      </div>
+
+      <div class="footer-section" id="social-media-col">
+        <h3>Mạng xã hội</h3>
+        <p style="color:#888; font-style:italic;">Đang tải...</p>
+      </div>
+
+      <div class="footer-section">
+        <h3>Học viện cơ sở tại TP Hồ Chí Minh</h3>
+        <p>Số 11 Nguyễn Đình Chiểu, phường Sài Gòn, Thành phố Hồ Chí Minh.</p>
+        <p>Cơ sở đào tạo tại TP Hồ Chí Minh<br>Số 97 Nam Thiện, phường Tăng Nhơn Phú, thành phố Hồ Chí Minh.</p>
+      </div>
+
+      <div class="footer-section" id="contact-info-col">
+        <h3>Thông tin liên lạc</h3>
+        <ul>
+          <li>📧 Email: <span id="footer-email">Đang tải...</span></li>
+          <li>📞 Số điện thoại: <span id="footer-phone">Đang tải...</span></li>
+          <li>📍 Địa chỉ: <span id="footer-address">Đang tải...</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2025 Học Viện Công Nghệ Bưu Chính Viễn Thông. Tất cả các quyền được bảo lưu.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const API_BASE = 'https://test4-7cop.onrender.com';
+  const EVENTS_API = `${API_BASE}/api/events`;
+  const SOCIAL_API = `${API_BASE}/api/social-medias`;
+  const CONTACT_API = `${API_BASE}/api/contact`;
+
+  // Kiểm tra sự kiện còn hạn hay hết hạn dựa trên registrationDeadline
+  function isEventStillOpen(registrationDeadline) {
+    if (!registrationDeadline) return true; // Nếu không có hạn thì mặc định còn hạn
+    const deadline = new Date(registrationDeadline);
+    const now = new Date();
+    return deadline >= now;
+  }
+
+  // Format ngày
+  function formatDate(iso) {
+    if (!iso) return 'Chưa xác định';
+    const d = new Date(iso);
+    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+  }
+
+  // Render card sự kiện - ĐÃ SỬA 2 LỖI
+  function renderEventCard(event) {
+    // Lấy tên tổ chức từ include nếu có, fallback về 'Chưa xác định'
+    const orgName = event.Organization?.name || event.organizationName || 'Chưa xác định';
+
+    const isOpen = isEventStillOpen(event.registrationDeadline);
+    const statusText = isOpen ? 'Còn hạn' : 'Hết hạn';
+    const statusClass = isOpen ? 'approved' : 'disapproved';
+
+    const card = document.createElement('div');
+    card.className = 'content-card';
+
+    card.innerHTML = `
+      <div class="content-image">
+        <img src="${event.image || 'https://via.placeholder.com/400x250?text=No+Image'}" alt="${event.name}">
+      </div>
+      <div class="content-info">
+        <div class="date">
+          <p>${event.name}</p>
+          <div class="status-badge ${statusClass}">${statusText}</div>
+        </div>
+        <div class="event-info">
+          <p>${event.description || 'Chưa có mô tả sự kiện.'}</p>
+          <p>⏰ ${formatDate(event.startTime)}</p>
+          <p>📍 ${event.location || 'Chưa xác định'}</p>
+          <p>🏢 ${orgName}</p>
+        </div>
+        <a class="dki" href="${event.registrationLink || '#'}" target="_blank">Đăng ký</a>
+      </div>
+    `;
+    return card;
+  }
+
+  // Load sự kiện từ tab "Đã tạo" và "Đã duyệt"
+  async function loadVisibleEvents() {
+    const container = document.getElementById('events-container');
+    if (!container) return;
+
+    container.innerHTML = '<p style="text-align:center; color:#888; grid-column:1/-1; padding:60px;">Đang tải danh sách sự kiện...</p>';
+
+    try {
+      const res = await fetch(EVENTS_API);
+      if (!res.ok) throw new Error('Lỗi server');
+
+      const allEvents = await res.json();
+
+      // Chỉ lấy created và approved
+      const visibleEvents = allEvents.filter(e => 
+        e.status === 'created' || 
+        e.status === 'approved'
+      );
+
+      container.innerHTML = '';
+
+      if (visibleEvents.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#888; grid-column:1/-1; padding:80px;">Hiện chưa có sự kiện nào.</p>';
+        return;
+      }
+
+      visibleEvents.forEach(event => {
+        container.appendChild(renderEventCard(event));
+      });
+
+    } catch (err) {
+      console.error('Lỗi load sự kiện:', err);
+      container.innerHTML = '<p style="text-align:center; color:#c00; grid-column:1/-1;">Không tải được danh sách sự kiện.</p>';
+    }
+  }
+
+  // Load Mạng xã hội
+  async function loadSocialMedias() {
+    const container = document.getElementById('social-media-col');
+    if (!container) return;
+
+    container.innerHTML = '<h3>Mạng xã hội</h3><p style="color:#888; font-style:italic;">Đang tải...</p>';
+
+    try {
+      const res = await fetch(SOCIAL_API);
+      if (!res.ok) throw new Error('Lỗi');
+
+      const data = await res.json();
+      let list = '<ul>';
+      if (data.length === 0) {
+        list += '<li style="color:#888;">Chưa có mạng xã hội</li>';
+      } else {
+        data.forEach(item => {
+          list += `<li><a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.name}</a></li>`;
+        });
+      }
+      list += '</ul>';
+
+      container.innerHTML = '<h3>Mạng xã hội</h3>' + list;
+    } catch (err) {
+      container.innerHTML = '<h3>Mạng xã hội</h3><p style="color:#c00;">Lỗi tải dữ liệu</p>';
+    }
+  }
+
+  // Load Thông tin liên lạc
+  async function loadContactInfo() {
+    try {
+      const res = await fetch(CONTACT_API);
+      if (!res.ok) throw new Error('Lỗi');
+
+      const data = await res.json();
+      document.getElementById('footer-email').textContent = data.email || 'Chưa có';
+      document.getElementById('footer-phone').textContent = data.phone || 'Chưa có';
+      document.getElementById('footer-address').textContent = data.address || 'Chưa có';
+    } catch (err) {
+      document.getElementById('contact-info-col').innerHTML = '<h3>Thông tin liên lạc</h3><p style="color:#c00;">Lỗi tải dữ liệu</p>';
+    }
+  }
+
+  // Chạy khi load trang
+  document.addEventListener('DOMContentLoaded', () => {
+    loadVisibleEvents();
+    loadSocialMedias();
+    loadContactInfo();
+  });
+</script>
+
+</body>
+</html>
