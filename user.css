@@ -54,6 +54,7 @@ body {
       font-style: italic; z-index: 1; margin-top: 8px;
     }
 
+
 /* ===== MAIN ===== */
 .user-main {
   max-width: 1200px;
@@ -61,10 +62,7 @@ body {
   padding: 40px 20px;
 }
 
-h2 {
-	color: #b00020; 
-	margin-bottom: 23px;
-}
+h2 {color: #b00020; margin-bottom: 23px;}
 
 /* ⚠️ CÔ LẬP CARD ADMIN */
 .admin-card-wrapper {
@@ -126,5 +124,3 @@ h2 {
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
 }
-
-
